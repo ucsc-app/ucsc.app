@@ -77,11 +77,7 @@ export function Menu({children}: {children: Record<number, Record<string, Menu>>
             <DateHeader/>
             <div ref={scrollRef} style={{overflow: 'scroll', marginTop: 150, height: 'calc(100vh - 210px)'}}>
                 {Object.entries(children).map(([offset, dayMenu]) => (
-                    <a href={"dayOffset" + offset} id={'dayOffset' + offset}
-                        style={{textDecoration: 'none', color: 'inherit', scrollMarginTop: 0}}
-                        onClick={(e) => {
-                            e.preventDefault();
-                        }}>
+                    <div id={'dayOffset' + offset} style={{fontWeight: 500, scrollMarginTop: 0}}>
                         <div key={offset} style={{display: 'flex', flexDirection: 'row',marginTop: 0, padding: '0px 15px'}}>
                             {Object.entries(dayMenu).map(([location, menu]: [string, Menu], i: number) => (
                                 <div key={location} style={{display: 'flex', overflow: 'visible', marginLeft: 10, marginBottom: 0, "--delay": `${i * 150}ms`} as React.CSSProperties}>
@@ -89,7 +85,7 @@ export function Menu({children}: {children: Record<number, Record<string, Menu>>
                                 </div>
                             ))}
                         </div>
-                    </a>
+                    </div>
                 ))}
             </div>
         </>

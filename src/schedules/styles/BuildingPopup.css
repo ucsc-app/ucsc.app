@@ -1,6 +1,6 @@
 .roomSelectorParent {
 	height: auto;
-	overflow: scroll;
+	overflow: auto;
 	color: var(--gold);
 }
 
