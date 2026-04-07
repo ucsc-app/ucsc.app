@@ -57,7 +57,7 @@ function App() {
 						<Route path='/news' element={<RssFeed />} />
 						<Route path='/courses' element={<Courses />} />
 						<Route path='/menu' element={<MenuPage />} />
-						<Route path='/schedule' element={<ScheduleMapPage />} />
+						<Route path='/map' element={<ScheduleMapPage />} />
 					</Routes>
 				</BrowserRouter>
 			</Context.Provider>

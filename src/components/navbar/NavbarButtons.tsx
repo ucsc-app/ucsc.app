@@ -7,7 +7,7 @@ interface NavBarButtonProps {
 export default function NavBarButtons({onClick}: NavBarButtonProps) {
 	const topBarButtons = {
 		'Home': '/',
-		...Object.fromEntries(['News', 'Menu', 'Courses', 'Schedule'].map(k => [k, `/${k.toLowerCase()}`]))
+		...Object.fromEntries(['News', 'Menu', 'Courses', 'Map'].map(k => [k, `/${k.toLowerCase()}`]))
 	}
 
 	return (

@@ -19,8 +19,8 @@ export default function ScheduleMapPage() {
 		title: 'Live Classes Map',
 		description: 'Find ongoing classes on UC Santa Cruz campus. View live class schedules and locations on our interactive map.',
 		keywords: 'UCSC classes, class locations, campus map, class schedule',
-		ogUrl: 'https://ucsc.app/liveclasses',
-		canonical: 'https://ucsc.app/liveclasses',
+		ogUrl: 'https://ucsc.app/map',
+		canonical: 'https://ucsc.app/map',
 		schema: liveClassSchema,
 	});
 
