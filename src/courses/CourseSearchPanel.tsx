@@ -1,6 +1,6 @@
 import { useContext, useState, useRef } from "react";
-import { BASE_API_URL } from "../constants";
-import { Loading } from "../components/loading/Loading.tsx";
+import { BASE_API_URL } from "../common/constants.ts";
+import { Loading } from "../common/loading/Loading.tsx";
 import Search from "./Search";
 import Filters from "./Filters";
 import Card from "./Card";

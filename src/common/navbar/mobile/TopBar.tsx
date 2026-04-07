@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Context } from "../../../Context";
 import NavBarButtons from "../NavbarButtons";
-import ThemeToggle from "../../../ThemeChanger";
+import ThemeToggle from "../../theme/ThemeChanger";
 import "./TopBar.css";
 
 export function TopBar() {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext } from "react";
-import { TopBar as MobileTopBar } from "../components/navbar/mobile/TopBar.tsx";
-import { TopBar as DesktopTopBar } from "../components/navbar/desktop/TopBar.tsx";
+import { TopBar as MobileTopBar } from "../common/navbar/mobile/TopBar.tsx";
+import { TopBar as DesktopTopBar } from "../common/navbar/desktop/TopBar.tsx";
 import DetailedView from "./DetailedView";
 import CourseSearchPanel from "./CourseSearchPanel.tsx";
 import { usePageMeta } from "../hooks/usePageMeta.tsx";

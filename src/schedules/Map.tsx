@@ -6,7 +6,7 @@ import "./styles/Map.css";
 import buildingsData from "./data/temp4.json";
 import { Feature, Geometry } from "geojson";
 import BuildingPopup from "./BuildingPopup";
-import { GetAllTerms, Term } from "../components/terms";
+import { GetAllTerms, Term } from "../common/terms";
 
 interface BuildingProperties {
 	BUILDINGNAME: string;

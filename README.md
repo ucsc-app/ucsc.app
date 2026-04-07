@@ -56,7 +56,7 @@ uv run uvicorn server:api --reload --host 0.0.0.0
 ```
 ucsc.app/
 ├── src/                # Frontend React application
-│   ├── components/       # Reusable UI components for all pages
+│   ├── common/           # Reusable UI components for all pages
 │   ├── courses/          # Course search and display
 │   ├── dashboard/        # Dashboard page
 │   ├── menu/             # Dining menu pages

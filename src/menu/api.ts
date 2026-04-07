@@ -1,4 +1,4 @@
-import { BASE_API_URL } from "../constants"
+import { BASE_API_URL } from "../common/constants"
 
 export enum Location {
     CowellStevenson = 'Cowell/Stevenson',

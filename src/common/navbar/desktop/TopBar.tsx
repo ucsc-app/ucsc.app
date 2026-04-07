@@ -1,6 +1,6 @@
 import { Context } from '../../../Context';
 import { useContext } from 'react';
-import ThemeToggle from '../../../ThemeChanger';
+import ThemeToggle from '../../theme/ThemeChanger';
 import NavBarButtons from '../NavbarButtons';
 import './TopBar.css';
 

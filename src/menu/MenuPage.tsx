@@ -1,13 +1,13 @@
 
-import {TopBar as MobileTopBar} from "../components/navbar/mobile/TopBar";
-import {TopBar as DesktopTopBar} from "../components/navbar/desktop/TopBar";
+import {TopBar as MobileTopBar} from "../common/navbar/mobile/TopBar";
+import {TopBar as DesktopTopBar} from "../common/navbar/desktop/TopBar";
 import { Context } from "../Context";
 import {Menu as MobileMenu} from './mobile/Menu';
 import {Menu as DesktopMenu} from './desktop/Menu';
 import {getAllLocationMenus, type Menu} from "./api";
 import './Menu.css'
-import '../components/loading/Loading.css';
-import {Error, Loading} from "../components/loading/Loading";
+import '../common/loading/Loading.css';
+import {Error, Loading} from "../common/loading/Loading";
 import {useContext, useEffect, useState} from "react";
 import { usePageMeta } from "../hooks/usePageMeta.tsx";
 import { generateLocalBusinessSchema } from "../utils/schema";

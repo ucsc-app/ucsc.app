@@ -16,7 +16,7 @@ import SunIconLightMode from '/icons/sun-light-mode.svg';
 import SunIconDarkMode from '/icons/sun-dark-mode.svg';
 
 
-import { Icon } from "../components/Icon";
+import { Icon } from "../common/Icon";
 import { statusEmoji } from "./StatusEmoji";
 import { useContext } from "react";
 import { Context } from "../Context";

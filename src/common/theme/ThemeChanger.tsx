@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { Context } from "./Context";
+import { Context } from "../../Context";
 import ToggleLightModeIcon from '/icons/toggle-light-mode.svg';
 import ToggleDarkModeIcon from '/icons/toggle-dark-mode.svg';
-import { Icon } from "./components/Icon";
+import { Icon } from "../Icon";
 
 import './ThemeChanger.css';
 

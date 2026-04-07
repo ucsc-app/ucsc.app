@@ -1,7 +1,7 @@
 /* 
 common file to handle term management
 */
-import { BASE_API_URL } from "../constants";
+import { BASE_API_URL } from "./constants";
 
 export interface Term {
 	label: string;

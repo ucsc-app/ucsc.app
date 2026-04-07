@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import buildingLookup from "./data/buildingLookup.json";
 import { RoomsInBuilding } from "../types";
-import { BASE_API_URL } from "../constants";
+import { BASE_API_URL } from "../common/constants";
 
 
 export default function GetRooms() {

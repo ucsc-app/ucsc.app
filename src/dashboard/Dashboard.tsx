@@ -1,5 +1,5 @@
-import { TopBar as MobileTopBar } from "../components/navbar/mobile/TopBar";
-import { TopBar as DesktopTopBar } from "../components/navbar/desktop/TopBar";
+import { TopBar as MobileTopBar } from "../common/navbar/mobile/TopBar";
+import { TopBar as DesktopTopBar } from "../common/navbar/desktop/TopBar";
 import { useContext } from "react";
 import { Context } from "../Context";
 import { Link } from "react-router";

@@ -1,13 +1,13 @@
 import { useEffect, useState, useContext } from "react";
-import { TopBar as MobileTopBar } from "../components/navbar/mobile/TopBar";
-import { TopBar as DesktopTopBar } from "../components/navbar/desktop/TopBar";
-import { Error } from "../components/loading/Loading";
-import { BASE_API_URL } from "../constants";
+import { TopBar as MobileTopBar } from "../common/navbar/mobile/TopBar";
+import { TopBar as DesktopTopBar } from "../common/navbar/desktop/TopBar";
+import { Error } from "../common/loading/Loading";
+import { BASE_API_URL } from "../common/constants.ts";
 import NewsCard from "./NewsCard";
 import { Context } from "../Context";
 import NewsSidebar from "./NewsSidebar";
 import NewsFilter from "./NewsFilter";
-import { Loading } from "../components/loading/Loading";
+import { Loading } from "../common/loading/Loading";
 import { usePageMeta } from "../hooks/usePageMeta.tsx";
 import { generateNewsArticleSchema } from "../utils/schema";
 import "./News.css";

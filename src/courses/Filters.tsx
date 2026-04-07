@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { CourseContext } from "./Courses";
-import { Term, GetAllTerms, fallbackTerms } from "../components/terms";
+import { Term, GetAllTerms, fallbackTerms } from "../common/terms";
 
 import './styles/Filters.css';
 

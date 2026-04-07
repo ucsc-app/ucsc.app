@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { RoomsInBuilding, TimeBlock } from "../types";
-import { BASE_API_URL } from "../constants";
+import { BASE_API_URL } from "../common/constants";
 import { MapContext } from "./MapContext";
 import { Context } from "../Context";
 import GetRooms from "./FetchRooms";
