@@ -37,7 +37,7 @@ body: dict[str, str] = {
 
 
 if __name__ == "__main__":
-	for term in tqdm(range(2048, 2262, 2)):
+	for term in tqdm(range(2048, 2266, 2)):
 		body["binds[:term]"] = str(term)
 		response: requests.Response = requests.post(URL, headers=HEADERS, data=body)
 		with open(f'locations/html/{term}.html', 'w+', encoding="utf-8") as file:

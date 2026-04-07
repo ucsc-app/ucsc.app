@@ -232,6 +232,6 @@ if __name__ == "__main__":
 	parser.add_argument('-l', '--local', action='store_true', help='Scrape from local HTML files instead of making HTTP requests')
 	args = parser.parse_args()
 
-	CURRENT_TERM: int = 2260
+	CURRENT_TERM: int = 2264
 	for term in tqdm(range(2048, CURRENT_TERM + 2, 2)):
 		getClassLocationsForTerm(term, args.local)

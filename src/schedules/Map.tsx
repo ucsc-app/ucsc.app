@@ -46,7 +46,7 @@ function getAllTerms() {
 	});
 
 	terms.reverse();
-	return terms.filter(y => y <= 2260);
+	return terms.filter(y => y <= 2264);
 }
 
 // function MapClickHandler() {
@@ -61,7 +61,7 @@ function getAllTerms() {
 export default function Map() {
 	const [selectedFeature, setSelectedFeature] = useState<Feature<Geometry, BuildingProperties> | null>(null);
 	const [popupPosition, setPopupPosition] = useState<LatLng | null>(null);
-	const [selectedTerm, setSelectedTerm] = useState<number>(2260);
+	const [selectedTerm, setSelectedTerm] = useState<number>(2264);
 
 	// const bounds: [[number, number], [number, number]] = [
 	// 	[36.9750, -122.0750],
