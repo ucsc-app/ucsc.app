@@ -3,11 +3,11 @@ import { TopBar as DesktopTopBar } from "../common/navbar/desktop/TopBar";
 import { useContext } from "react";
 import { Context } from "../Context";
 import { Link } from "react-router";
-import { usePageMeta } from "../hooks/usePageMeta.tsx";
+import { usePageMeta } from "../common/seo/usePageMeta.tsx";
 import {
 	generateOrganizationSchema,
 	generateWebsiteSchema,
-} from "../utils/schema";
+} from "../common/seo/schema.ts";
 import { useNavigate } from "react-router";
 import "./Dashboard.css";
 

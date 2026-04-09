@@ -9,8 +9,8 @@ import './Menu.css'
 import '../common/loading/Loading.css';
 import {Error, Loading} from "../common/loading/Loading";
 import {useContext, useEffect, useState} from "react";
-import { usePageMeta } from "../hooks/usePageMeta.tsx";
-import { generateLocalBusinessSchema } from "../utils/schema";
+import { usePageMeta } from "../common/seo/usePageMeta.tsx";
+import { generateLocalBusinessSchema } from "../common/seo/schema.ts";
 
 const dayOffsetCount = 7; // Number of days to fetch menus for
 

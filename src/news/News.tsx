@@ -8,8 +8,8 @@ import { Context } from "../Context";
 import NewsSidebar from "./NewsSidebar";
 import NewsFilter from "./NewsFilter";
 import { Loading } from "../common/loading/Loading";
-import { usePageMeta } from "../hooks/usePageMeta.tsx";
-import { generateNewsArticleSchema } from "../utils/schema";
+import { usePageMeta } from "../common/seo/usePageMeta.tsx";
+import { generateNewsArticleSchema } from "../common/seo/schema.ts";
 import "./News.css";
 
 type FeedItem = {
