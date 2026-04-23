@@ -55,7 +55,7 @@ export default function Buttons() {
 						"Lecture",
 					);
 
-					window.open(link, "_blank");
+					if (link) window.open(link, "_blank");
 				}}
 				className="pisaButton"
 			>

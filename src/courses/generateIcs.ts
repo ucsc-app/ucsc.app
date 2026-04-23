@@ -8,6 +8,8 @@ const TERM_DATES: Record<string, { start: string; end: string }> = {
 	"2258": { start: "20250922", end: "20251206" }, // Fall 2025
 	"2260": { start: "20260105", end: "20260314" }, // Winter 2026
 	"2262": { start: "20260330", end: "20260606" }, // Spring 2026
+	"2264": { start: "20260706", end: "20260822" }, // Summer 2026
+	"2268": { start: "20260921", end: "20261205" }, // Fall 2026
 };
 
 
