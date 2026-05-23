@@ -102,26 +102,17 @@ async def fetchAllClasses(classNumbers: list[str], term: int):
 
 
 if __name__ == "__main__":
-	CURRENT_TERM: int = 2262
+	CURRENT_TERM: int = 2268
 
-	# for term in tqdm(range(2048, CURRENT_TERM + 2, 2)):
-	# 	body["binds[:term]"] = str(term)
-	# 	response: requests.Response = requests.post(URL, headers=HEADERS, data=body)
-	# 	with open(f'locations/html/{term}.html', 'w+', encoding="utf-8") as file:
-	# 		file.writelines(response.text)
+	for term in tqdm(range(2048, CURRENT_TERM + 2, 2)):
+		body["binds[:term]"] = str(term)
+		response: requests.Response = requests.post(URL, headers=HEADERS, data=body)
+		with open(f'locations/html/{term}.html', 'w+', encoding="utf-8") as file:
+			file.writelines(response.text)
 	
-	#for each class for each term, grab all class numbers and make an API call to the detailed course page
-
-	for term in tqdm(range(2048, CURRENT_TERM + 2, 2), desc="Term"):
-		#temp
-		with open(f"locations/html/{term}.html", "r", encoding="utf-8") as file:
-			pisaPage = ''.join(file.readlines())
-
+		#for each class for each term, grab all class numbers and make an API call to the detailed course page
 		classNumberRegex: re.Pattern = re.compile(r'class_nbr_([0-9]+)')
-		classNumbers: list[str] = classNumberRegex.findall(pisaPage)
-
-		# classNumbers = ['11057']
-		# print(classNumbers)
+		classNumbers: list[str] = classNumberRegex.findall(response.text)
 
 		data = asyncio.run(fetchAllClasses(classNumbers, term))
 		with open(f"locations/sections/{term}.json", "w+", encoding="utf-8") as file:
