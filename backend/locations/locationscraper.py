@@ -120,14 +120,13 @@ def scrapePanel(panel) -> ClassDict:
 
 	return classData
 
-def isValidLocation(m: MeetingRaw) -> bool:
+def isValidLocation(location: str) -> bool:
 	if (
 		# Fall 2004: some classes dont have a time, some locations might just be "STU"/"FLD"/etc, and some locations might be empty
-		len(m.time) == 0 or 
-		len(m.location) == 0 or 
-		len(m.location) == 3 or
+		len(location) == 0 or 
+		len(location) == 3 or
 		# various online classes, tbd locations, off campus locations
-		m.location in [
+		location in [
 			"Remote Instruction", 
 			"Online", 
 			"TBD In Person", 
@@ -144,18 +143,18 @@ def isValidLocation(m: MeetingRaw) -> bool:
 			"Steven Music" # idk where this is, only 3 classes have ever been offered here
 		] or
 		# coastal campus locations
-		m.location.startswith("Ocean Health") or
-		m.location.startswith("CoastBio") or
-		m.location.startswith("WestResearchPark") or
-		m.location.startswith("Lg Discovery") or
+		location.startswith("Ocean Health") or
+		location.startswith("CoastBio") or
+		location.startswith("WestResearchPark") or
+		location.startswith("Lg Discovery") or
 		# only a handful of classes have been taught at the Arboretum (years ago), and the building doesn't seem to exist anymore
-		m.location.startswith("Arboretum") or
+		location.startswith("Arboretum") or
 		# these buildings dont exist anymore
-		m.location.startswith("Ch Merr Rm") or
-		m.location.startswith("Kresge Rec") or
-		m.location.startswith("Krsg Town Hall") or
+		location.startswith("Ch Merr Rm") or
+		location.startswith("Kresge Rec") or
+		location.startswith("Krsg Town Hall") or
 		# only two classes have ever been offered here (CLNI 70 spring23 and spring24)
-		m.location.startswith("Coll9/JRLC Garden")
+		location.startswith("Coll9/JRLC Garden")
 	): return False
 
 	return True
@@ -248,7 +247,7 @@ def getDiscussionSectionsForClass(classID: str, discussionSectionsJSON: dict[str
 			"meetings": []
 		}) # type: ignore
 
-		validMeetings: list[dict] = [m for m in section["meetings"] if isValidLocation(MeetingRaw(m["location"], "a"))]
+		validMeetings: list[dict] = [m for m in section["meetings"] if isValidLocation(m["location"])]
 		if len(validMeetings) == 0: continue
 
 		for meeting in validMeetings:
@@ -307,7 +306,7 @@ def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
 
 	# for each class
 	# 	scrape its times. 
-	# 	if no times, check its name. if is a Lab section
+	# 	if no times, check if its a lab
 	# 		look up its discussion sections. 
 	# 		treat the discussion section locations as the Lab's locations. 
 	# 		insert into db, setting parent to null
@@ -331,16 +330,14 @@ def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
 
 	for panel in panels:
 		classData: ClassDict = scrapePanel(panel)
+
+		# check if its a lab
 		if len(classData["meetings"]) == 0 or len(classData["meetings"][0].time) == 0:
 			isLabRe: re.Match[str]|None = isLabPattern.match(classData["name"])
-			if isLabRe is None: 
-				# print(classData["name"], "is not a lab, continuing")
-				continue # not a lab. just a chud class with no meeting locations. ignore it
+			if isLabRe is None: continue # not a lab. just a chud class with no meeting locations. ignore it
 
 			#now that we know this is a lab, look up if it has discussion sections. if not, ignore it
-			if classData["class_number"] not in allSections: 
-				# print(classData["name"], "isnt in sections continuing")
-				continue
+			if classData["class_number"] not in allSections: continue
 
 			sections: list[ClassDict] = getDiscussionSectionsForClass(classData["class_number"], allSections)
 			if len(sections) == 0: continue
@@ -364,7 +361,7 @@ def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
 
 			continue
 
-		classData["meetings"] = [m for m in classData["meetings"] if isValidLocation(m)]
+		classData["meetings"] = [m for m in classData["meetings"] if len(m.time) > 0 and isValidLocation(m.location)] #some classes dont have a time
 		if len(classData["meetings"]) == 0: continue
 		processedMeetings: list[Meeting] = processMeetings(classData["meetings"])
 
@@ -425,7 +422,6 @@ if __name__ == "__main__":
 	CURRENT_TERM: int = 2262
 	for term in tqdm(range(2048, CURRENT_TERM + 1, 2)):
 		getClassLocationsForTerm(term, args.local)
-		# getSectionLocationsForTerm(term)
 
 
 '''

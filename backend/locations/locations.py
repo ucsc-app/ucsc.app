@@ -58,17 +58,41 @@ async def getSchedule(term: str, building: str, room: str|None, day: int = Path(
 			c.name,
 			c.pisaLink,
 			c.instructor,
-			tb.startTime,
+			tb.startTime as startTime,
 			tb.endTime
 		FROM classLocationTimeBlock cltb
 		NATURAL JOIN class c
 		NATURAL JOIN location l
 		NATURAL JOIN timeBlock tb
 		WHERE 
-			l.building = ?
+			parent IS NULL
+			AND l.building = ?
 			{roomQuery}
 			AND tb.day = ?
 			AND c.term = ?
-		ORDER BY tb.startTime;
-	''', params)
+
+		UNION
+
+		SELECT 
+			-- c.classID,
+			c.name || ' for ' || c2.name,
+			c2.pisaLink,
+			c.instructor,
+			startTime,
+			endTime 
+		FROM classLocationTimeBlock cltb 
+		NATURAL JOIN class c 
+		NATURAL JOIN location l 
+		NATURAL JOIN timeBlock tb 
+		join class c2 on c2.classID = c.parent and c2.term = c.term
+		where 
+			c.parent is not null 
+			AND building = ?
+			{roomQuery} 
+			AND day = ?
+			AND c.term = ? 
+
+		ORDER BY startTime;
+	''', params + params)
+
 	return cursor.fetchall()
