@@ -5,3 +5,4 @@ dist/
 .env
 
 *.html
+backend/locations/sections
