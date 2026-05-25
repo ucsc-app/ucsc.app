@@ -7,7 +7,12 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-    <script async src="https://api.ucsc.app/s/script.js" data-domain="ucsc.app" data-api="https://api.ucsc.app/s/event"></script>
+    <script async src="/s.js"></script>
+    <script>
+      window.plausible = window.plausible || function() {
+        (window.plausible.q = window.plausible.q || []).push(arguments);
+      };
+    </script>
 
 
     <!-- Preconnect to API and external domains for faster resource loading -->
