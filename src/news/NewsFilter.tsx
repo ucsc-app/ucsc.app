@@ -30,7 +30,7 @@ export default function NewsFilter({ FEEDS, selectedFeeds, toggleFeed }: NewsFil
 							<input
 								type="checkbox"
 								checked={selectedFeeds.includes(feed)}
-								onChange={() => toggleFeed(feed)}
+								onChange={() => { toggleFeed(feed); window.plausible?.('News Feed Filter Toggled', { props: { feed } }); }}
 								style={{marginRight: '5px'}}
 							/>
 							{feed}
@@ -39,7 +39,7 @@ export default function NewsFilter({ FEEDS, selectedFeeds, toggleFeed }: NewsFil
 				))}
 				<div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
 					<button onClick={() => setIsOpen(false)} className="filterButton">
-						Close	
+						Close
 					</button>
 				</div>
 			</dialog>

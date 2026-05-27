@@ -55,6 +55,7 @@ export default function MenuPage() {
             // }
             setMenuData(menus);
             setLoading(false);
+            window.plausible?.('Menu Viewed');
         })()
 
         return () => {

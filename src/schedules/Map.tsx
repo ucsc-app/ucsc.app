@@ -28,9 +28,9 @@ export default function Map() {
 
 	const onEachFeature = (feature: Feature<Geometry, BuildingProperties>, layer: Layer) => {
 		layer.on('click', (e) => {
-			// console.log([e.latlng.lng, e.latlng.lat]);
 			setSelectedFeature(feature);
 			setPopupPosition(e.latlng);
+			window.plausible?.('Map Building Viewed', { props: { building: feature.properties.BUILDINGNAME } });
 		});
 	};
 

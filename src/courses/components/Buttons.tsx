@@ -25,6 +25,7 @@ export default function Buttons() {
 					a.download = `${details.primary_section.subject}-${details.primary_section.catalog_nbr}.ics`;
 					a.click();
 					URL.revokeObjectURL(url);
+					window.plausible?.('ICS Downloaded', { props: { course: `${details.primary_section.subject} ${details.primary_section.catalog_nbr}` } });
 				}}
 				className="pisaButton"
 				title="Download calendar file"
@@ -55,7 +56,10 @@ export default function Buttons() {
 						"Lecture",
 					);
 
-					if (link) window.open(link, "_blank");
+					if (link) {
+						window.open(link, "_blank");
+						window.plausible?.('Google Calendar Added', { props: { course: `${details.primary_section.subject} ${details.primary_section.catalog_nbr}` } });
+					}
 				}}
 				className="pisaButton"
 			>

@@ -35,7 +35,7 @@ const Card: React.FC<CardProps> = ({ course, term, onCardClick }) => {
     const ctx = useContext(Context);
 	
 	return (
-        <article className="cardParent" onClick={() => { console.log(course); onCardClick(term, course.class_number) }}>
+        <article className="cardParent" onClick={() => { onCardClick(term, course.class_number); window.plausible?.('Course Card Opened', { props: { course: course.name } }); }}>
             <div className="card">
                 <div className="classInfo">
                     <div style={{display: "flex", width: "100%"}}>

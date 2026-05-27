@@ -48,6 +48,7 @@ const Search: React.FC<SearchProps> = ({ onSearch }) => {
 				onKeyDown={(e) => {
 					if (e.key === 'Enter') {
 						onSearch(searchText);
+						window.plausible?.('Course Searched', { props: { query: searchText } });
 						searchBoxRef.current?.blur();
 					}
 				}}
@@ -56,6 +57,7 @@ const Search: React.FC<SearchProps> = ({ onSearch }) => {
 				className="searchButton"
 				onClick={() => {
 					onSearch(searchText);
+					window.plausible?.('Course Searched', { props: { query: searchText } });
 				}}
 			>
 				Go

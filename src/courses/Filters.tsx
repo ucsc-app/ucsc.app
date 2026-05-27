@@ -39,6 +39,7 @@ export default function Filters({ setGE, setStatus, setTimes }: FilterProps) {
 				value={courseCtx!.term}
 				onChange={(e) => {
 					courseCtx!.setTerm(e.target.value);
+					window.plausible?.('Filter Changed', { props: { filter: 'Term', value: e.target.value } });
 				}}
 			>
 				{termOptions.map((termOption: Term, index: number) => (
@@ -52,7 +53,7 @@ export default function Filters({ setGE, setStatus, setTimes }: FilterProps) {
 				id="GE"
 				className="dropdown"
 				style={{ width: 'calc(20% - 3px)' }}
-				onChange={(e) => { setGE(e.target.value) }}
+				onChange={(e) => { setGE(e.target.value); window.plausible?.('Filter Changed', { props: { filter: 'GE', value: e.target.value } }); }}
 			>
 				{["Any GE", "AH & I", "C", "CC", "ER", "IM", "MF", "PE-E", "PE-H", "PE-T", "PR-C", "PR-E", "PR-S", "SI", "SR", "TA"].map((ge: string, idx: number) => (
 					<option key={idx} value={ge}>{ge}</option>
@@ -65,7 +66,7 @@ export default function Filters({ setGE, setStatus, setTimes }: FilterProps) {
 				id="status"
 				className="dropdown"
 				style={{ width: 'calc(17% - 3px)' }}
-				onChange={(e) => { setStatus(e.target.value) }}
+				onChange={(e) => { setStatus(e.target.value); window.plausible?.('Filter Changed', { props: { filter: 'Status', value: e.target.value } }); }}
 			>
 				<option value="all">All</option>
 				<option value="O">Open</option>
@@ -77,7 +78,7 @@ export default function Filters({ setGE, setStatus, setTimes }: FilterProps) {
 				id="times"
 				className="dropdown"
 				style={{ width: 'calc(33% - 3px)' }}
-				onChange={(e) => { setTimes(e.target.value) }}
+				onChange={(e) => { setTimes(e.target.value); window.plausible?.('Filter Changed', { props: { filter: 'Time', value: e.target.value } }); }}
 			>
 				<option value="">All Times</option>
 				<option value="Morning">Morning</option>
