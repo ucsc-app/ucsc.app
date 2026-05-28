@@ -1,6 +1,8 @@
-import re, sqlite3, json, pickle, zlib, base64, os
+import re, sqlite3, os
 from tqdm import tqdm
-from typing import NamedTuple, TypedDict, cast, Literal
+from typing import cast
+from readbin import getClassDictForTerm
+from loctypes import DayOfWeek, MeetingRaw, ClassDict, Location, TimeBlock, Meeting
 
 dayToID: dict[str, int] = {
 	'M': 0,
@@ -15,42 +17,7 @@ dayToID: dict[str, int] = {
 roomPattern: re.Pattern = re.compile(r' ([A-Z]?[0-9]+[A-Z]?)$')
 timePattern: re.Pattern = re.compile(r'((?:[A-Z][a-z]?)+) (\d\d:\d\d[A-Z][A-Z]-\d\d:\d\d[A-Z][A-Z])') #group1 is days, group2 is time
 isLabPattern: re.Pattern = re.compile(r'([A-Z]{2,4} [0-9]{1,3})L( - .+)')
-DayOfWeek = Literal["M", "Tu", "W", "Th", "F", "Sa", "Su"]
 
-# the raw location/time strings from pisa
-class MeetingRaw(TypedDict):
-	location: str
-	start_time: str
-	end_time: str
-	days: str
-
-class Section(TypedDict):
-	class_number: str
-	component: str
-	class_section: str
-	meetings: list[MeetingRaw]
-
-class ClassDict(TypedDict):
-	class_number: str
-	name: str
-	link: str
-	instructor: str
-	meetings: list[MeetingRaw]
-	sections: list[Section]
-
-# the processed locations/times
-class Location(NamedTuple):
-	building: str
-	room: str
-
-class TimeBlock(NamedTuple):
-	day: DayOfWeek
-	startTime: str
-	endTime: str
-
-class Meeting(NamedTuple):
-	location: Location
-	time: TimeBlock
 
 # Converts from 02:40PM format to 14:40:00 (sql time format)
 def convertTo24hr(timeStr: str) -> str:
@@ -200,84 +167,8 @@ def insertMeetingIntoTable(m: Meeting, term: int, classID: str, cursor: sqlite3.
 		ON CONFLICT DO NOTHING
 	''', (term, classID, locationID, timeBlockID))
 
-def readBin(filePath: str) -> list[dict]:
-    with open(filePath, 'rb') as file:
-        compressedData: bytes = pickle.load(file)
-    
-    decompressed: bytes = zlib.decompress(compressedData)
-    return json.loads(decompressed.decode('utf-8'))    
-
-def generatePisaLink(term: int, classID: str) -> str:
-	b: bytes = base64.b64encode(f'a:2:{{s:5:":STRM";s:4:"{term}";s:10:":CLASS_NBR";s:5:"{classID}";}}'.encode('ascii'))
-	return f"https://pisa.ucsc.edu/class_search/index.php?action=detail&class_data={b.decode('ascii')}"
-
-def processAPIResponse(term: int, data: dict) -> ClassDict:
-	ps: dict = data["primary_section"]
-	classData: dict = {
-		"class_number": ps["class_nbr"],
-		"name": f"{ps['subject']} {ps['catalog_nbr']} - {ps['class_section']} {ps['title']}",
-		"link": generatePisaLink(term, ps["class_nbr"]),
-		"meetings": []
-	}
-
-	instructors: set[str] = set()
-	if "meetings" in data:
-		for meeting in data["meetings"]:
-			classData["meetings"].append({
-				"days": meeting["days"],
-				"start_time": meeting["start_time"],
-				"end_time": meeting["end_time"],
-				"location": meeting["location"]
-			})
-
-			for instructor in meeting["instructors"]:
-				instructors.add(instructor["name"])
-		
-	classData["instructor"] = ', '.join(list(instructors))
-
-	#if no discussion sections, do nothing
-	# if "secondary_sections" not in data or len(data["secondary_sections"]) == 0:
-	# 	return classData
-	
-	sections: list = []
-	if "secondary_sections" in data:
-		for section in data["secondary_sections"]:
-			s = {
-				"class_number": section["class_nbr"],
-				"component": section["component"],
-				"class_section": section["class_section"],
-				"meetings": [] # fuck discussion sections for having multiple possible meeting times.
-			}
-
-			#if a discussion section is cancelled, it wont have a meetings array 
-			#see ASTR-3 Fall 2004 section 1D
-			if "meetings" not in section: continue
-
-			for meeting in section["meetings"]:
-				#during COVID, discussion sections had "TBA" as their location for some reason 
-				#see class ID 24825 in term 2208 for an example
-				if meeting["days"] == "TBA" or meeting["start_time"] == "TBA" or meeting["end_time"] == "TBA" or meeting["location"] == "TBA":
-					continue
-
-				s["meetings"].append({
-					"days": meeting["days"],
-					"start_time": meeting["start_time"],
-					"end_time": meeting["end_time"],
-					"location": meeting["location"],
-				})
-			
-			sections.append(s)
-
-	classData["sections"] = sections
-
-	# print(classNum, sections)
-	return cast(ClassDict, classData)
-
 def getClassLocationsForTerm(term: int) -> None:
-	# with open(f"locations/classes/{term}.json", "r", encoding="utf-8") as file:
-	# 	allClasses: list[ClassDict] = json.load(file)
-	allAPIResponsesRaw: list[dict] = readBin(f"locations/compressed/{term}.bin")
-	allClasses: list[ClassDict] = [processAPIResponse(term, a) for a in allAPIResponsesRaw if a]
+	allClasses: list[ClassDict] = getClassDictForTerm(term)
 
 	# a class has its parent field set to null
 	# a discussion section has its pisaLink field set to null, and the parent field set to another class
