@@ -66,11 +66,18 @@ def processAPIResponse(term: int, data: dict) -> ClassDict:
 			#see ASTR-3 Fall 2004 section 1D
 			if "meetings" not in section: continue
 
+			#a section can have a different set of instructors per meeting time. 
+			#i dont give a fuck about attaching instructors per time block, so im gonna gather all of them
+			#and shove them into a set (to deduplicate) and then the "instructor" field for this section will be all of them
+			instructors: set[str] = set()
+
 			for meeting in section["meetings"]:
 				#during COVID, discussion sections had "TBA" as their location for some reason 
 				#see class ID 24825 in term 2208 for an example
 				if meeting["days"] == "TBA" or meeting["start_time"] == "TBA" or meeting["end_time"] == "TBA" or meeting["location"] == "TBA":
 					continue
+
+				instructors.update([i["name"] for i in meeting["instructors"]]) #get all instructors
 
 				s["meetings"].append({
 					"days": meeting["days"],
@@ -78,7 +85,8 @@ def processAPIResponse(term: int, data: dict) -> ClassDict:
 					"end_time": meeting["end_time"],
 					"location": meeting["location"],
 				})
-			
+
+			s["instructor"] = ', '.join(list(instructors)) or "Staff"		
 			sections.append(s)
 
 	classData["sections"] = sections

@@ -214,6 +214,8 @@ def getClassLocationsForTerm(term: int) -> None:
 		for section in classData["sections"]:
 			name: str = ("LBS" if section["component"] == "Secondary Lab" else "DISC") + "-" + section["class_section"]
 
+			# print(section)
+
 			# as it turns out, its possible for discussion sections to be shared between classes
 			# eg, phys 6A 01 and phys 6A 02 in fall 2004 both share their discussion sections
 			# since im 99% certain that the class ID is unique, if there is a conflict on entry, we can ignore it.
@@ -226,7 +228,7 @@ def getClassLocationsForTerm(term: int) -> None:
 				section["class_number"], 
 				name,
 				classData["class_number"],
-				"Staff"
+				section["instructor"]
 			))
 
 			processedMeetings: list[Meeting] = processMeetings(section["meetings"])

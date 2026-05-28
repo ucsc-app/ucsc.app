@@ -14,6 +14,7 @@ class Section(TypedDict):
 	component: str
 	class_section: str
 	meetings: list[MeetingRaw]
+	instructor: str
 
 class ClassDict(TypedDict):
 	class_number: str
