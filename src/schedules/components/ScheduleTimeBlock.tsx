@@ -24,7 +24,7 @@ export default function ScheduleTimeBlock({ timeBlock }: ScheduleTimeBlockProps)
 		<div className="schedule-time-block">
 			<a
 				className="stb-pisalink"
-				href={`https://pisa.ucsc.edu/class_search/${timeBlock[1]}`}
+				href={timeBlock[1]}
 				target="_blank"
 				rel="noopener noreferrer"
 			>

@@ -48,8 +48,8 @@ async def fetchClass(client: httpx.AsyncClient, classNum: str, term: int, semaph
 
 		ps: dict = data["primary_section"]
 		classData: dict = {
-			"id": ps["class_nbr"],
-			"name": f"{ps['subject']}-{ps['catalog_nbr']} - {ps['class_section']} {ps['title_long']}",
+			"class_number": ps["class_nbr"],
+			"name": f"{ps['subject']} {ps['catalog_nbr']} - {ps['class_section']} {ps['title']}",
 			"link": generatePisaLink(term, classNum),
 			"meetings": []
 		}
@@ -77,7 +77,7 @@ async def fetchClass(client: httpx.AsyncClient, classNum: str, term: int, semaph
 		if "secondary_sections" in data:
 			for section in data["secondary_sections"]:
 				s = {
-					"class_nbr": section["class_nbr"],
+					"class_number": section["class_nbr"],
 					"component": section["component"],
 					"class_section": section["class_section"],
 					"meetings": [] # fuck discussion sections for having multiple possible meeting times.
@@ -140,7 +140,7 @@ async def fetchAllTerms(startTerm: int, endTerm: int, maxConcurrent: int = 5):
 			# apparently some classes dont have ids. they all dont have locations either, so skip em
 			classNumbers: list[str] = [c["class_nbr"] for c in allClasses["classes"] if len(c["class_nbr"]) > 0]
 			
-			return {term: classNumbers}
+			return {term: list(set(classNumbers))}  # deduplicate, because it can return duplicates (eg DANM 219 fall 2004)
 	
 	async with httpx.AsyncClient() as client:
 		tasks = [fetchTerm(client, term) for term in range(startTerm, endTerm, 2)]

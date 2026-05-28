@@ -6,3 +6,4 @@ dist/
 
 *.html
 backend/locations/sections
+backend/locations/classes

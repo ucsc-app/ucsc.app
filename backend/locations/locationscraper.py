@@ -50,9 +50,17 @@ isLabPattern: re.Pattern = re.compile(r'([A-Z]{2,4} [0-9]{1,3})L( - .+)')
 DayOfWeek = Literal["M", "Tu", "W", "Th", "F", "Sa", "Su"]
 
 # the raw location/time strings from pisa
-class MeetingRaw(NamedTuple):
+class MeetingRaw(TypedDict):
 	location: str
-	time: str
+	start_time: str
+	end_time: str
+	days: str
+
+class Section(TypedDict):
+	class_number: str
+	component: str
+	class_section: str
+	meetings: list[MeetingRaw]
 
 class ClassDict(TypedDict):
 	class_number: str
@@ -60,6 +68,7 @@ class ClassDict(TypedDict):
 	link: str
 	instructor: str
 	meetings: list[MeetingRaw]
+	sections: list[Section]
 
 # the processed locations/times
 class Location(NamedTuple):
@@ -159,6 +168,9 @@ def isValidLocation(location: str) -> bool:
 
 	return True
 
+def isValidTime(time: str) -> bool:
+	return len(time) > 0 and time != "TBA" # some classes dont have a time, pisa displays it as an empty string
+
 def fixLocations(location: str) -> Location:
 	global roomPattern
 
@@ -202,28 +214,19 @@ def fixLocations(location: str) -> Location:
 	return Location(building, room)
 
 def parseMeeting(m: MeetingRaw) -> list[Meeting]:
-	global timePattern
-	l: Location = fixLocations(m.location)
+	l: Location = fixLocations(m["location"])
 	meetings: list[Meeting] = []
 
-	# some classes can have different meeting times on different days. 
-	# eg "MTuWTh 06:00PM-10:00PM    F 04:00PM-07:00PM" <-- this will be separated by 3 \xa0s (kys pisa)
-	rawMeetingTimes: list[str] = timePattern.findall(m.time.replace('\xa0\xa0\xa0\xa0', ' '))
-	for time in rawMeetingTimes:
-		meetingDays: str = time[0]
-		startTime: str = time[1].split('-')[0]
-		endTime: str = time[1].split('-')[1]
+	for day in ["M", "Tu", "W", "Th", "F", "Sa", "Su"]:
+		if day not in m["days"]: continue
 
-		for day in ["M", "Tu", "W", "Th", "F", "Sa", "Su"]:
-			if day not in meetingDays: continue
+		tb: TimeBlock = TimeBlock(
+			cast(DayOfWeek, day),
+			convertTo24hr(m["start_time"].replace(' ', '')),
+			convertTo24hr(m["end_time"].replace(' ', ''))
+		)
 
-			tb: TimeBlock = TimeBlock(
-				cast(DayOfWeek, day),
-				convertTo24hr(startTime),
-				convertTo24hr(endTime)
-			)
-
-			meetings.append(Meeting(l, tb))
+		meetings.append(Meeting(l, tb))
 
 	return meetings
 
@@ -233,34 +236,6 @@ def processMeetings(meetings: list[MeetingRaw]) -> list[Meeting]:
 		xs.extend(parseMeeting(m))
 	
 	return xs
-
-def getDiscussionSectionsForClass(classID: str, discussionSectionsJSON: dict[str, list]) -> list[ClassDict]:
-	sections: list[ClassDict] = []
-	if classID not in discussionSectionsJSON: return sections
-
-	for section in discussionSectionsJSON[classID]:
-		name: str = ("LBS" if section["component"] == "Secondary Lab" else "DISC") + "-" + section["class_section"]
-
-		cd: ClassDict = ClassDict({
-			"class_number": section["class_nbr"],
-			"name": name,
-			"meetings": []
-		}) # type: ignore
-
-		validMeetings: list[dict] = [m for m in section["meetings"] if isValidLocation(m["location"])]
-		if len(validMeetings) == 0: continue
-
-		for meeting in validMeetings:
-			mRaw: MeetingRaw = MeetingRaw(
-				location=meeting["location"],
-				time=f"{meeting['days']} {meeting['start_time'].replace(' ', '')}-{meeting['end_time'].replace(' ', '')}"
-			)
-
-			cd["meetings"].append(mRaw)
-
-		sections.append(cd)
-	
-	return sections
 
 def insertMeetingIntoTable(m: Meeting, term: int, classID: str, cursor: sqlite3.Cursor) -> None:
 	# insert location
@@ -288,85 +263,42 @@ def insertMeetingIntoTable(m: Meeting, term: int, classID: str, cursor: sqlite3.
 	''', (term, classID, locationID, timeBlockID))
 
 
-def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
-	if useLocal:
-		with open(f'locations/html/{term}.html', 'r', encoding='utf-8') as file:
-			responseText: str = ''.join(file.readlines())
-	else:
-		body["binds[:term]"] = str(term)
-		response = requests.get(URL, headers=HEADERS, data=body)
-		responseText: str = response.text
-
-	with open(f"locations/sections/{term}.json", "r", encoding="utf-8") as file:
-		allSections: dict[str, list] = json.load(file)
+def getClassLocationsForTerm(term: int) -> None:
+	with open(f"locations/classes/{term}.json", "r", encoding="utf-8") as file:
+		allClasses: list[ClassDict] = json.load(file)
 
 	# a class has its parent field set to null
 	# a discussion section has its pisaLink field set to null, and the parent field set to another class
-	# a lab is a class, but its timings are the timings of its discussion sections
+	
+	# i would carve out an exception for labs, but:
+	# a lab does not have to be attached to a real class, it doesnt need to have an L in its name (phys 6M spring 2026), 
+	# some have meetings but no sections, others have sections but no meetings
 
 	# for each class
-	# 	scrape its times. 
-	# 	if no times, check if its a lab
-	# 		look up its discussion sections. 
-	# 		treat the discussion section locations as the Lab's locations. 
-	# 		insert into db, setting parent to null
-	#		break
-	#
-	# 	filter valid locations
-	# 	if no valid locations, continue
-	# 	for each valid location, process and insert class into db
-	# 	
-	#	use json and look up its discussion sections
-	#	if no sections, continue
-	# 	filter locations. if none, continue
-	# 	for each valid location
-	# 		insert into db. set parent to class. set link to null.
+	# 	filter out any TBA meetings
+	# 	if it has no meetings, and no sections, skip it
+	# 	insert the class into the table 
+	# 	insert that class's meetings and locations into the table, if they exist
+	# 	if it has sections, insert those into the table 
 
-	soup = bs4.BeautifulSoup(responseText, 'lxml')
-	panels = soup.find_all(class_="panel panel-default row")
+	# soup = bs4.BeautifulSoup(responseText, 'lxml')
+	# panels = soup.find_all(class_="panel panel-default row")
 
 	conn: sqlite3.Connection = sqlite3.connect('locations/locations.db')
 	cursor: sqlite3.Cursor = conn.cursor()
 
-	for panel in panels:
-		classData: ClassDict = scrapePanel(panel)
-
-		# check if its a lab
-		if len(classData["meetings"]) == 0 or len(classData["meetings"][0].time) == 0:
-			isLabRe: re.Match[str]|None = isLabPattern.match(classData["name"])
-			if isLabRe is None: continue # not a lab. just a chud class with no meeting locations. ignore it
-
-			#now that we know this is a lab, look up if it has discussion sections. if not, ignore it
-			if classData["class_number"] not in allSections: continue
-
-			sections: list[ClassDict] = getDiscussionSectionsForClass(classData["class_number"], allSections)
-			if len(sections) == 0: continue
-
-			cursor.execute('''
-				INSERT INTO class(term, classID, pisaLink, name, instructor) 
-				VALUES(?, ?, ?, ?, ?)
-				ON CONFLICT DO NOTHING
-			''', (
-				term,
-				classData["class_number"], 
-				classData["link"],
-				classData["name"],
-				classData["instructor"], 
-			))
-
-			for section in sections:
-				processedMeetings: list[Meeting] = processMeetings(section["meetings"])
-				for m in processedMeetings:
-					insertMeetingIntoTable(m, term, classData["class_number"], cursor)
-
-			continue
-
-		classData["meetings"] = [m for m in classData["meetings"] if len(m.time) > 0 and isValidLocation(m.location)] #some classes dont have a time
-		if len(classData["meetings"]) == 0: continue
-		processedMeetings: list[Meeting] = processMeetings(classData["meetings"])
-
+	for classData in allClasses:
+		classData["meetings"] = [m for m in classData["meetings"] if isValidTime(m["start_time"]) and isValidLocation(m["location"])] #some classes dont have a time
+		
+		if len(classData["meetings"]) == 0 and len(classData["sections"]) == 0: continue
 		# start inserting shit into the db
 
+		cursor.execute('SELECT * FROM class WHERE term = ? AND classID = ?', 
+               (term, classData["class_number"]))
+		existing = cursor.fetchone()
+		if existing:
+			print(f"Already exists: {existing}")
+		
 		#insert class
 		cursor.execute('''
 			INSERT INTO class(term, classID, pisaLink, name, instructor) 
@@ -379,15 +311,15 @@ def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
 			classData["instructor"], 
 		))
 
+		processedMeetings: list[Meeting] = processMeetings(classData["meetings"])
 		for m in processedMeetings:
 			insertMeetingIntoTable(m, term, classData["class_number"], cursor)
 			
 		
 		# now look up discussion sections for this class and append those 
-		sections: list[ClassDict] = getDiscussionSectionsForClass(classData["class_number"], allSections)
-		if len(sections) == 0: continue
+		for section in classData["sections"]:
+			name: str = ("LBS" if section["component"] == "Secondary Lab" else "DISC") + "-" + section["class_section"]
 
-		for section in sections:
 			# as it turns out, its possible for discussion sections to be shared between classes
 			# eg, phys 6A 01 and phys 6A 02 in fall 2004 both share their discussion sections
 			# since im 99% certain that the class ID is unique, if there is a conflict on entry, we can ignore it.
@@ -398,7 +330,7 @@ def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
 			''', (
 				term,
 				section["class_number"], 
-				section["name"],
+				name,
 				classData["class_number"],
 				"Staff"
 			))
@@ -408,42 +340,15 @@ def getClassLocationsForTerm(term: int, useLocal: bool) -> None:
 				insertMeetingIntoTable(m, term, section["class_number"], cursor)
 
 
-
-
 	conn.commit()
 	conn.close()
 
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-l', '--local', action='store_true', help='Scrape from local HTML files instead of making HTTP requests')
-	args = parser.parse_args()
+	# parser = argparse.ArgumentParser()
+	# parser.add_argument('-l', '--local', action='store_true', help='Scrape from local HTML files instead of making HTTP requests')
+	# args = parser.parse_args()
 
-	CURRENT_TERM: int = 2262
-	for term in tqdm(range(2048, CURRENT_TERM + 1, 2)):
-		getClassLocationsForTerm(term, args.local)
-
-
-'''
-edge case:
-term 2262, class 50613 is Stat 7L
-this class is not in the db
-it is a class with no location, but 5 "discussion sections"
-
-so i cannot just have a foreign key to another class to act as the "parent"
-for those labs
-
-workarounds:
-1. instead of a foreign key to a parent class, make another table/join table that has the name and parent link to the other class (or just link)
-2. write some sort of script that for "orphaned" discussion sections finds the "real" parent class. maybe via scraping the html again? do lab sections always have an id that is +1 their parent?
-
-3. Instead of scraping classes and sections separately, scrape them together. So go down the pisa html file. for each panel, scrape it like normal. then,
-access the json for that term and grab the discussion sections and add those. 
-
-if the panel has no times listed, then it must be a Lab component for another class. in that case, find the class with the same name but without the L. that is the parent
-scrape the sections like normal, then set the other class as its parent
-
-
-
-
-'''
+	CURRENT_TERM: int = 2268
+	for term in tqdm(range(2048, CURRENT_TERM + 2, 2)):
+		getClassLocationsForTerm(term)
