@@ -4,6 +4,8 @@ __pycache__/
 dist/
 .env
 settings.json
+menus.json
+news.json
 
 *.html
 *.bin
