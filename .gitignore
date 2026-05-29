@@ -9,3 +9,4 @@ settings.json
 *.bin
 backend/locations/sections
 backend/locations/classes
+*.db
