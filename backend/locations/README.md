@@ -1,3 +1,5 @@
+<img width="737" height="634" alt="image" src="https://github.com/user-attachments/assets/eaf44c1c-ad73-4e76-bc44-b9a3c0b291b3" />
+
 A class is uniquely identified by its ID and its term (since the same ID can be reused across terms). A class will have a link to its Pisa page, a name, an instructor, and a null parent field.
 
 A discussion section is a class with its own unique ID and term. It has a null Pisa link, its name will be something like "DISC-01A" or "LBS-02D" or something, an instructor (usually "Staff" but sometimes a name), and a non-null parent field pointing to its "parent" class. 
