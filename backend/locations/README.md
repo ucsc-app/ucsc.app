@@ -20,3 +20,8 @@ Let's assume for a moment that classes can only meet at the same time on unique 
 | CRSN-1   | M       | 19:10:00   | 20:45:00  | Classroom Unit 002 |
 
 
+#### some other notes
+
+So the idea is that `pisadownloader.py` runs once and makes API calls to UCSC's backend class API for every single class between now and Fall 2004 and stores its response as a binary file for each term. Then `locationscraper.py` will go through each binary file in `/compressed`, process each API response and transform it however it needs to and stick it into the database (with some utility stuff in `loctypes.py` and `readbin.py`). Then, periodically, `pisadownloader.py` will wake up and check if theres a new term available, and if so, download its class data too. 
+
+Note that `locationscraper.py` does not care about which term is the latest term, it just processes every single binary file it sees in `/compressed`. That way, `pisadownloader.py` can periodically add to this folder without having to update anything within `locationscraper.py`.
