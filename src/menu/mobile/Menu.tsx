@@ -4,7 +4,6 @@ import {MenuPanel} from "../MenuPanel.tsx";
 import {type Menu} from "../api.ts";
 import {Context} from "../../Context.tsx";
 import {Swiper, SwiperSlide} from "swiper/react";
-// @ts-expect-error gekrnhiowu
 import 'swiper/css';
 import DateHeader from "../DateHeader.tsx";
 
