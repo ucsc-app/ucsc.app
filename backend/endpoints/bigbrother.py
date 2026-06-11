@@ -28,7 +28,7 @@ async def plausible_event( request: Request ):
 	headers = {
 		"Content-Type": request.headers.get( "Content-Type", "application/json" ),
 		"User-Agent": request.headers.get( "User-Agent", "" ),
-		"X-Forwarded-For": request.headers.get( "X-Forwarded-For" ) or request.client.host, #type: ignore
+		"X-Forwarded-For": request.headers.get( "CF-Connecting-IP" ) or request.headers.get( "X-Forwarded-For" ) or request.client.host,
 	}
 
 	res = await http_client.post(
