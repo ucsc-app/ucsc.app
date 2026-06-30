@@ -38,8 +38,8 @@ export function DateSelector() {
 
     return (
         <>
-            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', borderRadius: 50, backgroundColor: 'var(--card-bg   )', 
-                overflow: 'hidden', padding: '2.5px 2.5px', gap: '10px', marginTop: '10px'}}>
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', borderRadius: 50, backgroundColor: 'var(--card-bg)', 
+                overflow: 'hidden', padding: '2.5px 2.5px', gap: '10px', margin: '10px', marginBottom: '0px'}}>
             {dayOffsets.map((offset) => {
                 const date = new Date();
                 date.setDate(date.getDate() + offset);  
